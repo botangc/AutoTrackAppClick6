@@ -9,7 +9,7 @@ import org.objectweb.asm.commons.AdviceAdapter
 class SensorsAnalyticsDefaultMethodVisitor extends AdviceAdapter {
 
    SensorsAnalyticsDefaultMethodVisitor(MethodVisitor mv, int access, String name, String desc) {
-        super(ASM6, mv, access, name, desc)
+        super(Opcodes.ASM6, mv, access, name, desc)
     }
 
     /**

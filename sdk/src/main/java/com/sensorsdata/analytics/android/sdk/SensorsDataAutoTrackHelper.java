@@ -25,6 +25,9 @@ import org.json.JSONObject;
 
 import java.util.Locale;
 
+/**
+ * 插桩Plugin中指向的插桩类
+ */
 @SuppressWarnings("unused")
 public class SensorsDataAutoTrackHelper {
     @Keep

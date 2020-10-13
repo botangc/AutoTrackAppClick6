@@ -33,6 +33,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="ButterKnife 绑定 OnClickListener"
+                android:onClick="butterKnifeButtonOnClick"
                 android:textAllCaps="false" />
 
             <android.support.v7.widget.AppCompatButton

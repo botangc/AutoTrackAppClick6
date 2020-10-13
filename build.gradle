@@ -4,15 +4,13 @@ buildscript {
         google()
         jcenter()
         mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven {
-            url uri('repo')
+            url uri('./plugin/repo')
         }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.1'
-//        classpath 'com.jakewharton:butterknife-gradle-plugin:9.0.0-SNAPSHOT'
-//        classpath 'com.sensorsdata:autotrack.android:1.0.0'
+        classpath 'com.sensorsdata:autotrack.android:1.0.0'
     }
 }
 

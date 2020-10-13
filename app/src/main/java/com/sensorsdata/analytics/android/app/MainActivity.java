@@ -26,9 +26,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
 import com.sensorsdata.analytics.android.sdk.SensorsDataTrackViewOnClick;
 import com.sensorsdata.analytics.android.app.databinding.ActivityMainBinding;
 
@@ -39,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         ActivityMainBinding mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mainBinding.setHandlers(this);
-
-        ButterKnife.bind(this);
 
         initButton();
         initLambdaButton();
@@ -226,7 +221,6 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 通过 ButterKnife 绑定事件
      */
-    @OnClick({R2.id.butterknife})
     public void butterKnifeButtonOnClick(View view) {
         showToast("Butter Knife OnClick");
     }

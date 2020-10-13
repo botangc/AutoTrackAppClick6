@@ -36,14 +36,12 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Created by 王灼洲 on 2018/7/22
+ * 采集信息整合器，整合所需相关信息
  */
-/*public*/ class SensorsDataPrivate {
-    private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"
-            + ".SSS", Locale.CHINA);
+class SensorsDataPrivate {
+    private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.CHINA);
 
-    public static void mergeJSONObject(final JSONObject source, JSONObject dest)
-            throws JSONException {
+    public static void mergeJSONObject(final JSONObject source, JSONObject dest) throws JSONException {
         Iterator<String> superPropertiesIterator = source.keys();
         while (superPropertiesIterator.hasNext()) {
             String key = superPropertiesIterator.next();

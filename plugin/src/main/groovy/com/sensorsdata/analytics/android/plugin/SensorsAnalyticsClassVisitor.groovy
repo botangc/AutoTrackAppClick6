@@ -24,7 +24,7 @@ class SensorsAnalyticsClassVisitor extends ClassVisitor implements Opcodes {
     private HashMap<String, SensorsAnalyticsMethodCell> mLambdaMethodCells = new HashMap<>()
 
     SensorsAnalyticsClassVisitor(final ClassVisitor classVisitor) {
-        super(ASM6, classVisitor)
+        super(Opcodes.ASM6, classVisitor)
     }
 
     private static void visitMethodWithLoadedParams(MethodVisitor methodVisitor, int opcode, String owner, String methodName, String methodDesc, int start, int count, List<Integer> paramOpcodes) {

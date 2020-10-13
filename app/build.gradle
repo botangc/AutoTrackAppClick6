@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'com.jakewharton.butterknife'
-//apply plugin: 'com.sensorsdata.android'
+apply plugin: 'com.sensorsdata.android'
 
 android {
     compileOptions {
@@ -37,8 +36,4 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 
     implementation project(':sdk')
-
-    //https://github.com/JakeWharton/butterknife
-//    implementation 'com.jakewharton:butterknife:8.8.1'
-//    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }

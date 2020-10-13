@@ -20,7 +20,7 @@ repositories {
 uploadArchives {
     repositories.mavenDeployer {
         //本地仓库路径，以放到项目根目录下的 repo 的文件夹为例
-        repository(url: uri('../repo'))
+        repository(url: uri('./repo'))
 
         //groupId ，自行定义
         pom.groupId = 'com.sensorsdata'

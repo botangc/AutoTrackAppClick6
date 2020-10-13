@@ -6,9 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by 王灼洲 on 2017/1/5
+ * 指定插桩的注解
  */
-
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SensorsDataTrackViewOnClick {

@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import java.util.Map;
 
 /**
- * Created by 王灼洲 on 2018/7/22
+ * 无痕埋点SDK初始化，以及采集信息的处理策略
  */
 @Keep
 public class SensorsDataAPI {
