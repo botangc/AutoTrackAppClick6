@@ -19,6 +19,9 @@ package com.sensorsdata.analytics.android.plugin
 
 import jdk.internal.org.objectweb.asm.Opcodes
 
+/**
+ * 需要插桩代码的方法配置
+ */
 class SensorsAnalyticsHookConfig {
     /**
      * android.gradle 3.2.1 版本中，针对 Lambda 表达式处理

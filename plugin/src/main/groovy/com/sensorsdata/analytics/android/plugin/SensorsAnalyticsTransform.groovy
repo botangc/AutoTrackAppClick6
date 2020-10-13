@@ -14,14 +14,17 @@ import com.android.build.gradle.internal.pipeline.TransformManager
 import groovy.io.FileType
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
-import org.gradle.api.Project
 
+/**
+ * 自定义class文件转换类
+ */
 class SensorsAnalyticsTransform extends Transform {
-    private static Project project
+    /**
+     * 扩展Task的对应对象，可在build.gradle中配置，在转换过程中使用
+     */
     private SensorsAnalyticsExtension sensorsAnalyticsExtension
 
-    SensorsAnalyticsTransform(Project project, SensorsAnalyticsExtension sensorsAnalyticsExtension) {
-        this.project = project
+    SensorsAnalyticsTransform(SensorsAnalyticsExtension sensorsAnalyticsExtension) {
         this.sensorsAnalyticsExtension = sensorsAnalyticsExtension
     }
 
@@ -82,29 +85,31 @@ class SensorsAnalyticsTransform extends Transform {
                 if (dir) {
                     HashMap<String, File> modifyMap = new HashMap<>()
                     /**遍历以某一扩展名结尾的文件*/
-                    dir.traverse(type: FileType.FILES, nameFilter: ~/.*\.class/) {
-                        File classFile ->
-                            if (SensorsAnalyticsClassModifier.isShouldModify(classFile.name)) {
-                                File modified = null
-                                if (!sensorsAnalyticsExtension.disableAppClick) {
-                                    modified = SensorsAnalyticsClassModifier.modifyClassFile(dir, classFile, context.getTemporaryDir())
-                                }
-                                if (modified != null) {
-                                    /**key 为包名 + 类名，如：/cn/sensorsdata/autotrack/android/app/MainActivity.class*/
-                                    String ke = classFile.absolutePath.replace(dir.absolutePath, "")
-                                    modifyMap.put(ke, modified)
-                                }
+                    // 将符合要求的文件，先另行存储，遍历完成后再统一复制
+                    dir.traverse(type: FileType.FILES, nameFilter: ~/.*\.class/) { File classFile ->
+                        // 排除部分系统文件和自定义的不处理文件
+                        if (SensorsAnalyticsClassModifier.isShouldModify(classFile.name)) {
+                            File modified = null
+                            if (!sensorsAnalyticsExtension.disableAppClick) {
+                                // 修改文件，先读取原文件，再执行插桩操作，再存入临时文件夹
+                                modified = SensorsAnalyticsClassModifier.modifyClassFile(dir, classFile, context.getTemporaryDir())
                             }
+                            if (modified != null) {
+                                /**key 为包名 + 类名，如：/cn/sensorsdata/autotrack/android/app/MainActivity.class*/
+                                String ke = classFile.absolutePath.replace(dir.absolutePath, "")
+                                modifyMap.put(ke, modified)
+                            }
+                        }
                     }
+                    // 复制修改后的临时文件，到指定的文件夹下，并删除临时文件
                     FileUtils.copyDirectory(directoryInput.file, dest)
-                    modifyMap.entrySet().each {
-                        Map.Entry<String, File> en ->
-                            File target = new File(dest.absolutePath + en.getKey())
-                            if (target.exists()) {
-                                target.delete()
-                            }
-                            FileUtils.copyFile(en.getValue(), target)
-                            en.getValue().delete()
+                    modifyMap.entrySet().each { Map.Entry<String, File> en ->
+                        File target = new File(dest.absolutePath + en.getKey())
+                        if (target.exists()) {
+                            target.delete()
+                        }
+                        FileUtils.copyFile(en.getValue(), target)
+                        en.getValue().delete()
                     }
                 }
             }
@@ -124,6 +129,7 @@ class SensorsAnalyticsTransform extends Transform {
                 File dest = outputProvider.getContentLocation(destName + "_" + hexName, jarInput.contentTypes, jarInput.scopes, Format.JAR)
                 def modifiedJar = null;
                 if (!sensorsAnalyticsExtension.disableAppClick) {
+                    // 读取jar包中class并修改
                     modifiedJar = SensorsAnalyticsClassModifier.modifyJar(jarInput.file, context.getTemporaryDir(), true)
                 }
                 if (modifiedJar == null) {

@@ -7,46 +7,62 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
+/**
+ * 自定义的ClassVisitor
+ * 在读取每个class文件时，遇到指定方法，可进行ASM代码插桩
+ */
 class SensorsAnalyticsClassVisitor extends ClassVisitor implements Opcodes {
-    private final
-    static String SDK_API_CLASS = "com/sensorsdata/analytics/android/sdk/SensorsDataAutoTrackHelper"
+    /**
+     * 需要插桩的代码实现类
+     */
+    private final static String SDK_API_CLASS = "com/sensorsdata/analytics/android/sdk/SensorsDataAutoTrackHelper"
+    /**
+     * class实现的接口结合
+     */
     private String[] mInterfaces
-    private ClassVisitor classVisitor
 
     private HashMap<String, SensorsAnalyticsMethodCell> mLambdaMethodCells = new HashMap<>()
 
     SensorsAnalyticsClassVisitor(final ClassVisitor classVisitor) {
-        super(Opcodes.ASM6, classVisitor)
-        this.classVisitor = classVisitor
+        super(ASM6, classVisitor)
     }
 
-    private
-    static void visitMethodWithLoadedParams(MethodVisitor methodVisitor, int opcode, String owner, String methodName, String methodDesc, int start, int count, List<Integer> paramOpcodes) {
+    private static void visitMethodWithLoadedParams(MethodVisitor methodVisitor, int opcode, String owner, String methodName, String methodDesc, int start, int count, List<Integer> paramOpcodes) {
         for (int i = start; i < start + count; i++) {
             methodVisitor.visitVarInsn(paramOpcodes[i - start], i)
         }
         methodVisitor.visitMethodInsn(opcode, owner, methodName, methodDesc, false)
     }
 
+    /**
+     * 开始读取class
+     */
     @Override
     void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         super.visit(version, access, name, signature, superName, interfaces)
+        // 读取class时，先保存该class实现的接口
         mInterfaces = interfaces
     }
 
+    /**
+     * 开始读取class中的method
+     */
     @Override
     MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions)
 
         String nameDesc = name + desc
-
+        // 自定义MethodVisitor，判断指定方法，并插桩代码
         methodVisitor = new SensorsAnalyticsDefaultMethodVisitor(methodVisitor, access, name, desc) {
+            /**
+             * 是否执行由注解指定的插桩
+             */
             boolean isSensorsDataTrackViewOnClickAnnotation = false
 
             @Override
             void visitEnd() {
                 super.visitEnd()
-
+                // 方法访问结束时，清除指定的lambda
                 if (mLambdaMethodCells.containsKey(nameDesc)) {
                     mLambdaMethodCells.remove(nameDesc)
                 }
@@ -55,8 +71,9 @@ class SensorsAnalyticsClassVisitor extends ClassVisitor implements Opcodes {
             @Override
             void visitInvokeDynamicInsn(String name1, String desc1, Handle bsm, Object... bsmArgs) {
                 super.visitInvokeDynamicInsn(name1, desc1, bsm, bsmArgs)
-
+                // 执行前先获取class中的动态方法，即lambda表达式
                 try {
+                    // 将lambda表达式的信息封装为指定类型
                     String desc2 = (String) bsmArgs[0]
                     SensorsAnalyticsMethodCell sensorsAnalyticsMethodCell = SensorsAnalyticsHookConfig.LAMBDA_METHODS.get(Type.getReturnType(desc1).getDescriptor() + name1 + desc2)
                     if (sensorsAnalyticsMethodCell != null) {
@@ -75,12 +92,14 @@ class SensorsAnalyticsClassVisitor extends ClassVisitor implements Opcodes {
                 /**
                  * 在 android.gradle 的 3.2.1 版本中，针对 view 的 setOnClickListener 方法 的 lambda 表达式做特殊处理。
                  */
+                // lambda形式的点击事件插桩
                 SensorsAnalyticsMethodCell lambdaMethodCell = mLambdaMethodCells.get(nameDesc)
                 if (lambdaMethodCell != null) {
                     Type[] types = Type.getArgumentTypes(lambdaMethodCell.desc)
                     int length = types.length
                     Type[] lambdaTypes = Type.getArgumentTypes(desc)
                     int paramStart = lambdaTypes.length - length
+                    // lambda不一致时，直接跳过
                     if (paramStart < 0) {
                         return
                     } else {
@@ -99,21 +118,21 @@ class SensorsAnalyticsClassVisitor extends ClassVisitor implements Opcodes {
                             return
                         }
                     }
-
+                    // 插桩lambda代码
                     for (int i = paramStart; i < paramStart + lambdaMethodCell.paramsCount; i++) {
                         methodVisitor.visitVarInsn(lambdaMethodCell.opcodes.get(i - paramStart), getVisitPosition(lambdaTypes, i, isStaticMethod))
                     }
                     methodVisitor.visitMethodInsn(INVOKESTATIC, SDK_API_CLASS, lambdaMethodCell.agentName, lambdaMethodCell.agentDesc, false)
                     return
                 }
-
+                // ActionBar的插桩
                 if (nameDesc == 'onContextItemSelected(Landroid/view/MenuItem;)Z' ||
                         nameDesc == 'onOptionsItemSelected(Landroid/view/MenuItem;)Z') {
                     methodVisitor.visitVarInsn(ALOAD, 0)
                     methodVisitor.visitVarInsn(ALOAD, 1)
                     methodVisitor.visitMethodInsn(INVOKESTATIC, SDK_API_CLASS, "trackViewOnClick", "(Ljava/lang/Object;Landroid/view/MenuItem;)V", false)
                 }
-
+                // 注解指定的插桩
                 if (isSensorsDataTrackViewOnClickAnnotation) {
                     if (desc == '(Landroid/view/View;)V') {
                         methodVisitor.visitVarInsn(ALOAD, 1)
@@ -121,7 +140,7 @@ class SensorsAnalyticsClassVisitor extends ClassVisitor implements Opcodes {
                         return
                     }
                 }
-
+                // 实现接口形式的点击事件插桩
                 if ((mInterfaces != null && mInterfaces.length > 0)) {
                     if ((mInterfaces.contains('android/view/View$OnClickListener') && nameDesc == 'onClick(Landroid/view/View;)V')) {
                         methodVisitor.visitVarInsn(ALOAD, 1)

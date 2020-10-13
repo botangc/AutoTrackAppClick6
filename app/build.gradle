@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.jakewharton.butterknife'
-apply plugin: 'com.sensorsdata.android'
+//apply plugin: 'com.jakewharton.butterknife'
+//apply plugin: 'com.sensorsdata.android'
 
 android {
     compileOptions {
@@ -27,9 +27,9 @@ android {
     }
 }
 
-sensorsAnalytics {
-    disableAppClick = false
-}
+//sensorsAnalytics {
+//    disableAppClick = false
+//}
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -39,6 +39,6 @@ dependencies {
     implementation project(':sdk')
 
     //https://github.com/JakeWharton/butterknife
-    implementation 'com.jakewharton:butterknife:8.8.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+//    implementation 'com.jakewharton:butterknife:8.8.1'
+//    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }

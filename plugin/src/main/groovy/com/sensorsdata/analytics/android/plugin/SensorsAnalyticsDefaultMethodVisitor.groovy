@@ -3,10 +3,13 @@ package com.sensorsdata.analytics.android.plugin
 import org.objectweb.asm.*
 import org.objectweb.asm.commons.AdviceAdapter
 
+/**
+ * 自定义MethodVisitor，AdviceAdapter中已实现各个关键点，继承后方便使用
+ */
 class SensorsAnalyticsDefaultMethodVisitor extends AdviceAdapter {
 
    SensorsAnalyticsDefaultMethodVisitor(MethodVisitor mv, int access, String name, String desc) {
-        super(Opcodes.ASM6, mv, access, name, desc)
+        super(ASM6, mv, access, name, desc)
     }
 
     /**

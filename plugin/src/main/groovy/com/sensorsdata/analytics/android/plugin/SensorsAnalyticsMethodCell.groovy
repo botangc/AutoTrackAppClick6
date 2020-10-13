@@ -1,5 +1,8 @@
 package com.sensorsdata.analytics.android.plugin
 
+/**
+ * 方法相关信息封装类
+ */
 class SensorsAnalyticsMethodCell {
     /**
      * 原方法名
