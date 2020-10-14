@@ -39,8 +39,17 @@ import java.util.Map;
  * 采集信息整合器，整合所需相关信息
  */
 class SensorsDataPrivate {
+    /**
+     * 时间格式化
+     */
     private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.CHINA);
 
+    /**
+     * 合并json串
+     *
+     * @param source 待合并
+     * @param dest 合并目标
+     */
     public static void mergeJSONObject(final JSONObject source, JSONObject dest) throws JSONException {
         Iterator<String> superPropertiesIterator = source.keys();
         while (superPropertiesIterator.hasNext()) {
@@ -56,21 +65,20 @@ class SensorsDataPrivate {
         }
     }
 
+    /**
+     * 获取设备信息
+     *
+     * @param context 上下文
+     */
     public static Map<String, Object> getDeviceInfo(Context context) {
         final Map<String, Object> deviceInfo = new HashMap<>();
         {
             deviceInfo.put("$lib", "Android");
             deviceInfo.put("$lib_version", SensorsDataAPI.SDK_VERSION);
             deviceInfo.put("$os", "Android");
-            deviceInfo.put("$os_version",
-                    Build.VERSION.RELEASE == null ? "UNKNOWN" : Build.VERSION.RELEASE);
-            deviceInfo
-                    .put("$manufacturer", Build.MANUFACTURER == null ? "UNKNOWN" : Build.MANUFACTURER);
-            if (TextUtils.isEmpty(Build.MODEL)) {
-                deviceInfo.put("$model", "UNKNOWN");
-            } else {
-                deviceInfo.put("$model", Build.MODEL.trim());
-            }
+            deviceInfo.put("$os_version", Build.VERSION.RELEASE == null ? "UNKNOWN" : Build.VERSION.RELEASE);
+            deviceInfo.put("$manufacturer", Build.MANUFACTURER == null ? "UNKNOWN" : Build.MANUFACTURER);
+            deviceInfo.put("$model", TextUtils.isEmpty(Build.MODEL) ? "UNKNOWN" : Build.MODEL.trim());
 
             try {
                 final PackageManager manager = context.getPackageManager();
@@ -111,8 +119,7 @@ class SensorsDataPrivate {
     /**
      * 获取 view 的 anroid:id 对应的字符串
      *
-     * @param view View
-     * @return String
+     * @param view 被点击的事件
      */
     public static String getViewId(View view) {
         String idString = null;
@@ -126,6 +133,11 @@ class SensorsDataPrivate {
         return idString;
     }
 
+    /**
+     * 获取控件类型
+     *
+     * @param view 被点击控件
+     */
     public static String getElementType(View view) {
         if (view == null) {
             return null;
@@ -158,6 +170,12 @@ class SensorsDataPrivate {
         return viewType;
     }
 
+    /**
+     * 获取ViewGroup的内容，即所有子控件的内容
+     *
+     * @param stringBuilder 拼接内容
+     * @param root ViewGroup控件
+     */
     public static String traverseViewContent(StringBuilder stringBuilder, ViewGroup root) {
         try {
             if (root == null) {
@@ -326,6 +344,12 @@ class SensorsDataPrivate {
         return activity;
     }
 
+    /**
+     * 添加换行
+     *
+     * @param sb 字符串构造器
+     * @param indent 换行数量
+     */
     private static void addIndentBlank(StringBuilder sb, int indent) {
         try {
             for (int i = 0; i < indent; i++) {
@@ -336,6 +360,12 @@ class SensorsDataPrivate {
         }
     }
 
+    /**
+     * 格式化json串，便于查看
+     *
+     * @param jsonStr 原json字符串
+     * @return 添加换行后的字符串
+     */
     public static String formatJson(String jsonStr) {
         try {
             if (null == jsonStr || "".equals(jsonStr)) {
